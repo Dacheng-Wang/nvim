@@ -287,9 +287,12 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
       local utils = require 'telescope.utils'
-      vim.keymap.set('n', '<leader>sc', function()
+      vim.keymap.set('n', '<leader>scd', function()
         builtin.find_files { cwd = utils.buffer_dir() }
-      end, { desc = '[S]earch [C]urrent Directory' })
+      end, { desc = '[S]earch [C]urrent [D]irectory' })
+      vim.keymap.set('n', '<leader>scg', function()
+        builtin.live_grep { cwd = utils.buffer_dir() }
+      end, { desc = '[S]earch [C]urrent Directory [G]rep' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
