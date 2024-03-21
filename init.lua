@@ -24,7 +24,24 @@ vim.opt.showmode = false
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.opt.clipboard = 'unnamedplus'
+-- vim.opt.clipboard = 'unnamedplus'
+local function copy(lines, _)
+  require('osc52').copy(table.concat(lines, '\n'))
+end
+
+local function paste()
+  return { vim.fn.split(vim.fn.getreg '', '\n'), vim.fn.getregtype '' }
+end
+
+vim.g.clipboard = {
+  name = 'osc52',
+  copy = { ['+'] = copy, ['*'] = copy },
+  paste = { ['+'] = paste, ['*'] = paste },
+}
+
+-- Now the '+' register will copy to system clipboard using OSC52
+vim.keymap.set('n', '<leader>c', '"+y')
+vim.keymap.set('n', '<leader>cc', '"+yy')
 
 -- Enable break indent
 vim.opt.breakindent = true
