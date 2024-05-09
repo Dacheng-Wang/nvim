@@ -595,6 +595,8 @@ require('lazy').setup({
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-buffer',
+      'hrsh7th/cmp-nvim-lsp-signature-help',
 
       -- If you want to add a bunch of pre-configured snippets,
       --    you can use this plugin to help you. It even has snippets
@@ -659,6 +661,23 @@ require('lazy').setup({
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
+          { name = 'nvim_lsp_signature_help' },
+          { name = 'nvim_lua', keyword_length = 2 }, -- complete neovim's Lua runtime API such vim.lsp.*
+          { name = 'buffer', keyword_length = 2 }, -- source current buffer
+          { name = 'calc' },
+        },
+        formatting = {
+          fields = { 'menu', 'abbr', 'kind' },
+          format = function(entry, item)
+            local menu_icon = {
+              nvim_lsp = 'λ',
+              luasnip = '⋗',
+              buffer = '',
+              path = '',
+            }
+            item.menu = menu_icon[entry.source.name]
+            return item
+          end,
         },
       }
     end,
@@ -722,7 +741,7 @@ require('lazy').setup({
 
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup {
-        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'markdown_inline', 'vim', 'vimdoc' },
+        ensure_installed = { 'bash', 'c', 'html', 'lua', 'markdown', 'markdown_inline', 'vim', 'vimdoc', 'rust', 'toml' },
         -- Autoinstall languages that are not installed
         auto_install = true,
         highlight = { enable = true },
