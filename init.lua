@@ -348,7 +348,7 @@ require('lazy').setup({
     },
     -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
     -- used for completion, annotations and signatures of Neovim apis
-    { 'folke/neodev.nvim', opts = {} },
+    -- { 'folke/neodev.nvim', opts = {} },
     config = function()
       -- Brief Aside: **What is LSP?**
       --
@@ -742,6 +742,8 @@ require('lazy').setup({
       vim.cmd.colorscheme 'gruvbox'
 
       -- You can configure highlights by doing something like:
+      -- vim.cmd.hi 'Normal ctermbg=none guibg=none'
+      -- vim.cmd.hi 'NonText ctermbg=none guibg=none'
       vim.cmd.hi 'Comment gui=none'
     end,
   },
