@@ -31,6 +31,7 @@ end
 return {
   {
     'chrisgrieser/nvim-origami',
+    enabled = false,
     event = 'BufReadPost', -- later will not save folds
     opts = true,
   },
