@@ -9,11 +9,11 @@ return {
     harpoon:setup()
     -- REQUIRED
 
-    vim.keymap.set('n', '<leader>ha', function()
+    vim.keymap.set('n', '<leader>haa', function()
       harpoon:list():add()
     end, { desc = 'add to harpoon list' })
 
-    vim.keymap.set('n', '<leader>hd', function()
+    vim.keymap.set('n', '<leader>had', function()
       harpoon:list():remove()
     end, { desc = 'delete from harpoon list' })
 
@@ -46,7 +46,7 @@ return {
         :find()
     end
 
-    vim.keymap.set('n', '<leader>hl', function()
+    vim.keymap.set('n', '<leader>hal', function()
       toggle_telescope(harpoon:list())
     end, { desc = 'harpoon list' })
   end,
