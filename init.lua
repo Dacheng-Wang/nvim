@@ -4,8 +4,66 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- Fix for Treesitter error in Neovim 0.10+ (specifically seen in 0.12.x)
+-- This version patches both the global and the required module to be as thorough as possible.
+local function apply_ts_monkeypatch()
+  if _G._ts_monkeypatch_applied then
+    return
+  end
+  local function patch_table(ts)
+    if not ts or type(ts) ~= 'table' then
+      return
+    end
+
+    local function is_node(n)
+      return type(n) == 'userdata' and pcall(function()
+        return n:type()
+      end)
+    end
+
+    if ts.get_node_text and not ts._get_node_text_patched then
+      local orig_get_node_text = ts.get_node_text
+      ts.get_node_text = function(node, source, opts)
+        if not is_node(node) then
+          return ''
+        end
+        local ok, res = pcall(orig_get_node_text, node, source, opts)
+        return ok and res or ''
+      end
+      ts._get_node_text_patched = true
+    end
+
+    if ts.get_range and not ts._get_range_patched then
+      local orig_get_range = ts.get_range
+      ts.get_range = function(node, source, metadata)
+        if not is_node(node) then
+          return { 0, 0, 0, 0 }
+        end
+        local ok, res = pcall(orig_get_range, node, source, metadata)
+        return ok and res or { 0, 0, 0, 0 }
+      end
+      ts._get_range_patched = true
+    end
+  end
+
+  patch_table(vim.treesitter)
+  local ok, ts = pcall(require, 'vim.treesitter')
+  if ok then
+    patch_table(ts)
+  end
+  _G._ts_monkeypatch_applied = true
+end
+
+apply_ts_monkeypatch()
+vim.api.nvim_create_autocmd({ 'BufEnter', 'FileType' }, { callback = apply_ts_monkeypatch })
+
 vim.g.have_nerd_font = true
 vim.g.disable_autoformat = false
+
+-- Disable unused providers to speed up startup and avoid checkhealth warnings
+vim.g.loaded_node_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -828,9 +886,10 @@ require('lazy').setup({
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    branch = 'main',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc', 'rust', 'toml' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'vim', 'vimdoc', 'rust', 'toml' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -848,7 +907,7 @@ require('lazy').setup({
       -- Prefer git instead of curl in order to improve connectivity in some environments
       require('nvim-treesitter.install').prefer_git = true
       ---@diagnostic disable-next-line: missing-fields
-      require('nvim-treesitter.configs').setup(opts)
+      require('nvim-treesitter').setup(opts)
 
       -- There are additional nvim-treesitter modules that you can use to interact
       -- with nvim-treesitter. You should go explore a few and see what interests you:
@@ -882,6 +941,10 @@ require('lazy').setup({
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
   { import = 'custom.plugins' },
 }, {
+  rocks = {
+    enabled = false,
+    hererocks = false,
+  },
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
     -- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
